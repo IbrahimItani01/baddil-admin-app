@@ -20,4 +20,35 @@ export default function Auth() {
 
   const toggleVisibility = () => setIsVisible(!isVisible);
   const dispatch = useAppDispatch();
+
+  const handleSubmit = async () => {
+    setLoading(true);
+
+    try {
+      await loginUser(dispatch, loginForm.email, loginForm.password);
+      navigate("/dashboard");
+    } catch (e) {
+      console.log(e);
+    } finally {
+      setLoading(false);
+      setLoginForm({ email: "", password: "" });
+    }
+  };
+
+  const handlePassReset = async () => {
+    if (loginForm.email === "") {
+      onOpenChange(); 
+    }
+	else {
+		setIsResetting(true); 
+		try {
+		  await sendForgetPasswordEmail(loginForm.email);
+		} catch (e) {
+		  console.log(e);
+		} finally {
+		  setIsResetting(false); 
+		}
+	  }
+  };
+
 }
