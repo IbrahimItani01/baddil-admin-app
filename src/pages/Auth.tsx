@@ -8,4 +8,16 @@ import { useNavigate } from "react-router";
 import CustomModal from "../components/base/Modal";
 
 export default function Auth() {
+  const [isVisible, setIsVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [isResetting, setIsResetting] = useState(false); 
+  const [loginForm, setLoginForm] = useState({
+    email: "",
+    password: "",
+  });
+  const navigate = useNavigate();
+  const { isOpen, onOpenChange } = useDisclosure();
+
+  const toggleVisibility = () => setIsVisible(!isVisible);
+  const dispatch = useAppDispatch();
 }
