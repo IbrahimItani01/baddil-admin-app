@@ -3,10 +3,10 @@ import SideNavBar from "../../components/SideNavBar";
 
 const Dashboard = () => {
   return (
-    <>
+    <div className="flex h-[100vh]">
       <SideNavBar />
       <Outlet /> 
-    </>
+    </div>
   );
 };
 
