@@ -61,7 +61,7 @@ export default function Auth() {
 
       />
       <div className="flex min-h-screen items-center justify-center bg-light-bg dark:bg-dark-bg">
-        <Card className="w-full max-w-md flex flex-col gap-10">
+        <Card className="w-full max-w-md flex flex-col gap-10 bg-light-bg dark:bg-dark-bg border-1 py-3 px-2">
           <CardHeader className="flex flex-col items-center pb-0 gap-10">
             <img src={Logo} alt="Logo" width={100} />
             <div className="self-start flex flex-col gap-3">
