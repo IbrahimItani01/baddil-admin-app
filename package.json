@@ -19,12 +19,15 @@
     "@nextui-org/theme": "^2.4.5",
     "@reduxjs/toolkit": "^2.5.0",
     "axios": "^1.7.9",
+    "dayjs": "^1.11.13",
     "framer-motion": "^11.18.0",
     "lucide-react": "^0.471.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-pro-sidebar": "^1.1.0",
     "react-redux": "^9.2.0",
     "react-router-dom": "^7.1.1",
+    "recharts": "^2.15.0",
     "redux": "^5.0.1"
   },
   "devDependencies": {
