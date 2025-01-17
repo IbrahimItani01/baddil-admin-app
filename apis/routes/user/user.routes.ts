@@ -1,83 +1,85 @@
 import axios from "axios";
 import { APIS_BASE_URL } from "../../main";
 
-interface ApiResponse<T = unknown> {
-  success: boolean;
-  message: string;
-  data: T;
-}
-
-export const checkUserByEmail = async (email: string): Promise<boolean | ApiResponse> => {
-  try {
-    const response = await axios.post<ApiResponse>(`${APIS_BASE_URL}/users/check-email`, { email });
-    return response.data;
-  } catch (error) {
-    console.error("Error checking user by email:", error);
-    return false;
-  }
+export const checkUserByEmail = async (email: string): Promise<unknown> => {
+	return axios
+		.post(`${APIS_BASE_URL}/users/check-email`, { email })
+		.then((response) => {
+			return response.data;
+		})
+		.catch((error) => {
+			console.error(error);
+			return false;
+		});
 };
 
-export const serveUserProfileImage = async (): Promise<string | false> => {
-  const token = localStorage.getItem("jwtToken");
-  if (!token) return false;
-  try {
-    const response = await axios.get<ApiResponse<string>>(`${APIS_BASE_URL}/users/profile-picture`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    return response.data.success ? response.data.data : false;
-  } catch (error) {
-    console.error("Error fetching profile picture:", error);
-    return false;
-  }
+export const serveUserProfileImage = async () => {
+	const token = localStorage.getItem("jwtToken");
+	if (!token) return;
+	return await axios
+		.get(`${APIS_BASE_URL}/users/profile-picture`, {
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+		})
+		.then((response) => {
+			if (response.data.success) {
+				return response.data.data;
+			}
+		})
+		.catch(() => false);
 };
 
-export const getUserInfo = async (): Promise<unknown | null> => {
-  const token = localStorage.getItem("jwtToken");
-  if (!token) return null;
-  try {
-    const response = await axios.get<ApiResponse>(`${APIS_BASE_URL}/users/me`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    return response.data.success ? response.data.data : null;
-  } catch (error) {
-    console.error("Error fetching user info:", error);
-    return null;
-  }
+export const getUserInfo = async () => {
+	const token = localStorage.getItem("jwtToken");
+	const response = await axios.get(`${APIS_BASE_URL}/users/me`, {
+		headers: {
+			Authorization: `Bearer ${token}`,
+		},
+	});
+	if (response.data.success) {
+		return response.data.data;
+	}
 };
+export const changeProfilePicture = async (
+	formData: FormData
+): Promise<unknown> => {
+	try {
+		const token = localStorage.getItem("jwtToken");
+		if (!token) return;
+		const response = await axios.put(
+			`${APIS_BASE_URL}/users/me/profile-picture`,
+			formData,
+			{
+				headers: {
+					Authorization: `Bearer ${token}`, // Attach JWT token for authentication
+					"Content-Type": "multipart/form-data", // Set content type for file upload
+				},
+			}
+		);
 
-export const changeProfilePicture = async (formData: FormData): Promise<ApiResponse | false> => {
-  const token = localStorage.getItem("jwtToken");
-  if (!token) return false;
-  try {
-    const response = await axios.put<ApiResponse>(`${APIS_BASE_URL}/users/me/profile-picture`, formData, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "multipart/form-data",
-      },
-    });
-    return response.data;
-  } catch (error) {
-    console.error("Error changing profile picture:", error);
-    return false;
-  }
+		return response.data;
+	} catch {
+		return false;
+	}
 };
+export const updateUserInfo = async (updateData: unknown): Promise<unknown> => {
+	try {
+		const token = localStorage.getItem("jwtToken");
+		if (!token) {
+			console.error("No token found");
+			return false;
+		}
 
-export const updateUserInfo = async (updateData: Record<string, unknown>): Promise<ApiResponse | false> => {
-  const token = localStorage.getItem("jwtToken");
-  if (!token) return false;
-  try {
-    const response = await axios.put<ApiResponse>(`${APIS_BASE_URL}/users/me`, updateData, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    return response.data;
-  } catch (error) {
-    console.error("Error updating user information:", error);
-    return false;
-  }
+		const response = await axios.put(`${APIS_BASE_URL}/users/me`, updateData, {
+			headers: {
+				Authorization: `Bearer ${token}`, // Include the JWT token
+			},
+		});
+
+		return response.data; // Assuming the API response has a `success` property
+	} catch (error) {
+		console.error("Error updating user information:", error);
+		return false;
+	}
 };
