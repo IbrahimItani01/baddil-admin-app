@@ -19,66 +19,59 @@ import {
 	DropdownMenu,
 	DropdownItem,
 } from "@nextui-org/react";
-
-const mockProfits = [
-	{ id: "1", amount: 1000, date: "2025-01-10", source: "subscription" },
-	{ id: "2", amount: 1500, date: "2025-01-12", source: "hire_budget" },
-];
-
-const profitSources = ["subscription", "hire_budget", "ads"];
-type ProfitRecord = {
-	id?: string | undefined;
-	amount: number;
-	source: string;
-	date: string;
-};
+import { useAppDispatch, useAppSelector } from "../../../../store/store";
+import {
+	addProfit,
+	deleteProfit,
+	editProfit,
+	Profit,
+	ProfitSource,
+} from "../../../../store/slices/profits.slice";
 
 const ProfitsTable = () => {
-	const [data, setData] = useState<ProfitRecord[]>(mockProfits);
+	const dispatch = useAppDispatch();
+	const profitsData = useAppSelector((state) => state.profits.profitsData);
 	const [isModalOpen, setIsModalOpen] = useState(false);
-	const [editRecord, setEditRecord] = useState<ProfitRecord | null>(null);
-	const [newRecord, setNewRecord] = useState<ProfitRecord>({
-		id: "",
+	const [editRecord, setEditRecord] = useState<Profit | null>(null);
+	const [newRecord, setNewRecord] = useState<Partial<Profit>>({
 		amount: 0,
-		source: "",
+		source: ProfitSource.SUBSCRIPTION,
 		date: new Date().toISOString().slice(0, 10),
 	});
 
 	const handleAddRecord = () => {
 		setNewRecord({
 			amount: 0,
-			source: "",
+			source: ProfitSource.SUBSCRIPTION,
 			date: new Date().toISOString().slice(0, 10),
 		});
 		setIsModalOpen(true);
 	};
 
-	const handleEditRecord = (record: ProfitRecord) => {
+	const handleEditRecord = (record: Profit) => {
 		setEditRecord(record);
 		setIsModalOpen(true);
 	};
 
-	const handleDeleteRecord = (id: string | undefined) => {
-		setData((prev) => prev.filter((item) => item.id !== id));
+	const handleDeleteRecord = (id: string) => {
+		dispatch(deleteProfit(id));
 	};
 
 	const handleSaveRecord = () => {
 		if (editRecord) {
-			setData((prev) =>
-				prev.map((item) =>
-					item.id === editRecord.id ? { ...item, ...editRecord } : item
-				)
-			);
+			dispatch(editProfit({ id: editRecord.id, updatedProfit: editRecord }));
 		} else {
 			const newId = Date.now().toString();
-			setData((prev) => [...prev, { ...newRecord, id: newId }]);
+			dispatch(
+				addProfit({
+					...newRecord,
+					id: newId,
+					created_at: new Date(),
+					updated_at: new Date(),
+				} as Profit)
+			);
 		}
 		setEditRecord(null);
-		setNewRecord({
-			amount: 0,
-			source: "",
-			date: new Date().toISOString().slice(0, 10),
-		});
 		setIsModalOpen(false);
 	};
 
@@ -100,7 +93,7 @@ const ProfitsTable = () => {
 					<TableColumn>Actions</TableColumn>
 				</TableHeader>
 				<TableBody>
-					{data.map((record) => (
+					{profitsData.map((record) => (
 						<TableRow key={record.id}>
 							<TableCell>{record.amount}</TableCell>
 							<TableCell>{record.source}</TableCell>
@@ -132,40 +125,41 @@ const ProfitsTable = () => {
 					<ModalBody>
 						<Input
 							label='Amount'
-							value={((editRecord || newRecord)?.amount || "").toString()} // Convert to string
+							value={
+								(editRecord
+									? editRecord.amount
+									: newRecord.amount
+								)?.toString() || ""
+							}
 							onChange={(e) => {
-								const value = e.target.value;
-								const numericValue = parseFloat(value); // Convert input to a number
-								if (!isNaN(numericValue)) {
+								const value = parseFloat(e.target.value);
+								if (!isNaN(value)) {
 									if (editRecord) {
-										setEditRecord({ ...editRecord, amount: numericValue });
+										setEditRecord({ ...editRecord, amount: value });
 									} else {
-										setNewRecord({ ...newRecord, amount: numericValue });
+										setNewRecord((prev) => ({ ...prev, amount: value }));
 									}
 								}
 							}}
 						/>
-
 						<Dropdown>
 							<DropdownTrigger>
 								<Button>
-									{(editRecord?.source || newRecord.source) ?? "Select Source"}
+									{editRecord?.source || newRecord.source || "Select Source"}
 								</Button>
 							</DropdownTrigger>
 							<DropdownMenu
 								aria-label='Select Source'
 								onAction={(key) => {
-									const source = key.toString(); // Convert `key` to `string`
+									const source = key.toString() as ProfitSource;
 									if (editRecord) {
-										setEditRecord((prev) =>
-											prev ? { ...prev, source } : prev
-										);
+										setEditRecord((prev) => ({ ...prev!, source }));
 									} else {
 										setNewRecord((prev) => ({ ...prev, source }));
 									}
 								}}
 							>
-								{profitSources.map((source) => (
+								{Object.values(ProfitSource).map((source) => (
 									<DropdownItem key={source}>{source}</DropdownItem>
 								))}
 							</DropdownMenu>
