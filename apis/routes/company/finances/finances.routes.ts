@@ -1,9 +1,11 @@
 import axios from "axios";
 import { APIS_BASE_URL } from "../../../main"; // Ensure this contains your base API URL
+import { Expense } from "../../../../store/slices/expenses.slice";
+import { Profit } from "../../../../store/slices/profits.slice";
 
 const FINANCES_ENDPOINT = `${APIS_BASE_URL}/finances`;
 
-export const createProfit = async (profitData) => {
+export const createProfit = async (profitData: Profit) => {
 	try {
 		const token = localStorage.getItem("token");
 		const response = await axios.post(
@@ -17,11 +19,7 @@ export const createProfit = async (profitData) => {
 		);
 		return response.data.data;
 	} catch (error) {
-		console.error(
-			"Error creating profit:",
-			error.response?.data || error.message
-		);
-		throw error;
+		console.error(error);
 	}
 };
 
@@ -33,10 +31,9 @@ export const getProfits = async () => {
 				Authorization: `Bearer ${token}`,
 			},
 		});
-		console.log(response.data.data);
 		return response.data.data;
 	} catch (error) {
-		console.log(error);
+		console.error(error);
 	}
 };
 
@@ -53,11 +50,7 @@ export const getProfitsByUserType = async () => {
 		);
 		return response.data;
 	} catch (error) {
-		console.error(
-			"Error fetching profits by user type:",
-			error.response?.data || error.message
-		);
-		throw error;
+		console.error(error);
 	}
 };
 
@@ -71,15 +64,11 @@ export const getHireProfits = async () => {
 		});
 		return response.data;
 	} catch (error) {
-		console.error(
-			"Error fetching hire-related profits:",
-			error.response?.data || error.message
-		);
-		throw error;
+		console.error(error);
 	}
 };
 
-export const createExpense = async (expenseData) => {
+export const createExpense = async (expenseData: Expense) => {
 	try {
 		const token = localStorage.getItem("token");
 		const response = await axios.post(
@@ -93,11 +82,7 @@ export const createExpense = async (expenseData) => {
 		);
 		return response.data;
 	} catch (error) {
-		console.error(
-			"Error creating expense:",
-			error.response?.data || error.message
-		);
-		throw error;
+		console.error(error);
 	}
 };
 
@@ -111,6 +96,6 @@ export const getExpenses = async () => {
 		});
 		return response.data.data;
 	} catch (error) {
-		console.log(error);
+		console.error(error);
 	}
 };
