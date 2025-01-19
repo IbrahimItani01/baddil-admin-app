@@ -6,62 +6,32 @@ import {
 	TableHeader,
 	TableRow,
 } from "@nextui-org/react";
-import { useState } from "react";
-
-// Mock data for Barters with Locations
-const mockBartersWithLocations = [
-	{
-		id: "1",
-		user1_email: "user1@example.com",
-		user2_email: "user2@example.com",
-		status: "ongoing",
-		handled_by_ai: "AI1",
-		location: {
-			name: "New York",
-			latitude: 40.7128,
-			longitude: -74.006,
-		},
-	},
-	{
-		id: "2",
-		user1_email: "user3@example.com",
-		user2_email: "user4@example.com",
-		status: "completed",
-		handled_by_ai: "AI2",
-		location: {
-			name: "Los Angeles",
-			latitude: 34.0522,
-			longitude: -118.2437,
-		},
-	},
-];
+import { useAppSelector } from "../../../../store/store";
 
 const BartersLocations = () => {
-	const [barters] = useState(mockBartersWithLocations);
+	const bartersData = useAppSelector((state) => state.barters.bartersData);
 
 	return (
 		<Table aria-label='Barters Table with Location'>
 			<TableHeader>
-				<TableColumn>User 1</TableColumn>
-				<TableColumn>User 2</TableColumn>
-				<TableColumn>Status</TableColumn>
-				<TableColumn>Handled By AI</TableColumn>
+				<TableColumn>Barter ID</TableColumn>
+				<TableColumn>User 1 Email</TableColumn>
+				<TableColumn>User 2 Email</TableColumn>
 				<TableColumn>Location</TableColumn>
 			</TableHeader>
 			<TableBody>
-				{barters.map((barter) => (
+				{bartersData.map((barter) => (
 					<TableRow key={barter.id}>
-						<TableCell>{barter.user1_email}</TableCell>
-						<TableCell>{barter.user2_email}</TableCell>
-						<TableCell>{barter.status}</TableCell>
-						<TableCell>{barter.handled_by_ai}</TableCell>
+						<TableCell>{barter.id}</TableCell>
+						<TableCell>{barter.user1.email}</TableCell>
+						<TableCell>{barter.user2.email}</TableCell>
 						<TableCell>
-							{barter.location ? (
+							{barter.meetup?.location ? (
 								<div>
-									<strong>{barter.location.name}</strong>
+									<strong>{barter.meetup.location.name}</strong>
 									<br />
-									Lat: {barter.location.latitude}, Long:{" "}
-									{barter.location.longitude}
+									Lat: {barter.meetup.location.latitude}, Long:{" "}
+									{barter.meetup.location.longitude}
 								</div>
 							) : (
 								"No location"
