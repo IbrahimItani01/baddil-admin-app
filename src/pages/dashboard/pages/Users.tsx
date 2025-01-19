@@ -47,13 +47,29 @@ const mockData = {
 	],
 };
 
+interface User {
+	id?: string;
+	name?: string;
+	email?: string;
+	user_type?: {
+		name: string;
+	};
+	user_status?: {
+		status: string;
+	};
+	subscription?: {
+		plan: string;
+		expires_at: string;
+	};
+}
+
 interface Props {
 	isBroker?: boolean;
 }
 
 const Users = ({ isBroker = false }: Props) => {
-	const [users, setUsers] = useState([]);
-	const [editUser, setEditUser] = useState<unknown | null>(null); // Track user to edit
+	const [users, setUsers] = useState<User[]>([]);
+	const [editUser, setEditUser] = useState<User | null>(null);
 	const [isModalOpen, setIsModalOpen] = useState(false); // Modal visibility
 	const userType = isBroker ? "broker" : "barterer";
 
@@ -70,7 +86,7 @@ const Users = ({ isBroker = false }: Props) => {
 		setUsers((prevUsers) => prevUsers.filter((user) => user.id !== id));
 	};
 
-	const handleEdit = (user: unknown) => {
+	const handleEdit = (user: User) => {
 		setEditUser(user); // Set user to be edited
 		setIsModalOpen(true);
 	};
@@ -80,10 +96,12 @@ const Users = ({ isBroker = false }: Props) => {
 	};
 
 	const handleSave = () => {
-		setUsers((prevUsers) =>
-			prevUsers.map((user) => (user.id === editUser.id ? editUser : user))
-		);
-		setIsModalOpen(false);
+		if (editUser) {
+			setUsers((prevUsers) =>
+				prevUsers.map((user) => (user.id === editUser.id ? editUser : user))
+			);
+			setIsModalOpen(false);
+		}
 	};
 
 	return (
@@ -104,14 +122,17 @@ const Users = ({ isBroker = false }: Props) => {
 				<TableBody>
 					{users.map((user) => (
 						<TableRow key={user.id}>
-							<TableCell>{user.name}</TableCell>
+							<TableCell>{user?.name}</TableCell>
 							<TableCell>{user.email}</TableCell>
-							<TableCell>{user.user_type.name}</TableCell>
-							<TableCell>{user.user_status.status}</TableCell>
-							<TableCell>{user.subscription.plan}</TableCell>
+							<TableCell>{user.user_type?.name}</TableCell>
+							<TableCell>{user.user_status?.status}</TableCell>
+							<TableCell>{user.subscription?.plan}</TableCell>
 							<TableCell>
-								{new Date(user.subscription.expires_at).toLocaleDateString()}
+								{new Date(
+									user.subscription?.expires_at || ""
+								).toLocaleDateString()}
 							</TableCell>
+
 							<TableCell>
 								<div className='flex space-x-2'>
 									<Edit
@@ -120,7 +141,7 @@ const Users = ({ isBroker = false }: Props) => {
 									/>
 									<Trash2
 										className='cursor-pointer text-red-500'
-										onClick={() => handleDelete(user.id)}
+										onClick={() => handleDelete(user.id || "")} // Fallback to empty string if id is undefined
 									/>
 								</div>
 							</TableCell>
@@ -151,13 +172,17 @@ const Users = ({ isBroker = false }: Props) => {
 							<Input
 								label='Subscription Plan'
 								name='subscription'
-								value={editUser.subscription.plan}
+								value={editUser.subscription?.plan || ""} // Use fallback value if undefined
 								onChange={(e) =>
 									setEditUser({
 										...editUser,
 										subscription: {
-											...editUser.subscription,
+											...(editUser.subscription || {
+												plan: "",
+												expires_at: "",
+											}), // Fallback if subscription is undefined
 											plan: e.target.value,
+											expires_at: editUser.subscription?.expires_at || "", // Fallback to empty string if undefined
 										},
 									})
 								}

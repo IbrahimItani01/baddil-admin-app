@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Edit, Trash2, Plus } from "lucide-react";
 import {
 	Table,
@@ -26,39 +26,48 @@ const mockProfits = [
 ];
 
 const profitSources = ["subscription", "hire_budget", "ads"];
+type ProfitRecord = {
+	id?: string | undefined;
+	amount: number;
+	source: string;
+	date: string;
+};
 
 const ProfitsTable = () => {
-	const [data, setData] = useState(mockProfits);
+	const [data, setData] = useState<ProfitRecord[]>(mockProfits);
 	const [isModalOpen, setIsModalOpen] = useState(false);
-	const [editRecord, setEditRecord] = useState<any>(null);
-	const [newRecord, setNewRecord] = useState<any>({
-		amount: "",
+	const [editRecord, setEditRecord] = useState<ProfitRecord | null>(null);
+	const [newRecord, setNewRecord] = useState<ProfitRecord>({
+		id: "",
+		amount: 0,
 		source: "",
 		date: new Date().toISOString().slice(0, 10),
 	});
 
 	const handleAddRecord = () => {
 		setNewRecord({
-			amount: "",
+			amount: 0,
 			source: "",
 			date: new Date().toISOString().slice(0, 10),
 		});
 		setIsModalOpen(true);
 	};
 
-	const handleEditRecord = (record: any) => {
+	const handleEditRecord = (record: ProfitRecord) => {
 		setEditRecord(record);
 		setIsModalOpen(true);
 	};
 
-	const handleDeleteRecord = (id: string) => {
+	const handleDeleteRecord = (id: string | undefined) => {
 		setData((prev) => prev.filter((item) => item.id !== id));
 	};
 
 	const handleSaveRecord = () => {
 		if (editRecord) {
 			setData((prev) =>
-				prev.map((item) => (item.id === editRecord.id ? editRecord : item))
+				prev.map((item) =>
+					item.id === editRecord.id ? { ...item, ...editRecord } : item
+				)
 			);
 		} else {
 			const newId = Date.now().toString();
@@ -66,7 +75,7 @@ const ProfitsTable = () => {
 		}
 		setEditRecord(null);
 		setNewRecord({
-			amount: "",
+			amount: 0,
 			source: "",
 			date: new Date().toISOString().slice(0, 10),
 		});
@@ -123,14 +132,20 @@ const ProfitsTable = () => {
 					<ModalBody>
 						<Input
 							label='Amount'
-							value={(editRecord || newRecord)?.amount || ""}
+							value={((editRecord || newRecord)?.amount || "").toString()} // Convert to string
 							onChange={(e) => {
 								const value = e.target.value;
-								editRecord
-									? setEditRecord({ ...editRecord, amount: value })
-									: setNewRecord({ ...newRecord, amount: value });
+								const numericValue = parseFloat(value); // Convert input to a number
+								if (!isNaN(numericValue)) {
+									if (editRecord) {
+										setEditRecord({ ...editRecord, amount: numericValue });
+									} else {
+										setNewRecord({ ...newRecord, amount: numericValue });
+									}
+								}
 							}}
 						/>
+
 						<Dropdown>
 							<DropdownTrigger>
 								<Button>
@@ -140,10 +155,13 @@ const ProfitsTable = () => {
 							<DropdownMenu
 								aria-label='Select Source'
 								onAction={(key) => {
+									const source = key.toString(); // Convert `key` to `string`
 									if (editRecord) {
-										setEditRecord((prev) => ({ ...prev, source: key }));
+										setEditRecord((prev) =>
+											prev ? { ...prev, source } : prev
+										);
 									} else {
-										setNewRecord((prev) => ({ ...prev, source: key }));
+										setNewRecord((prev) => ({ ...prev, source }));
 									}
 								}}
 							>

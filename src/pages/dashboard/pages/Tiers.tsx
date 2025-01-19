@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Edit, Trash2, Plus } from "lucide-react";
 import {
 	Table,
@@ -15,6 +15,14 @@ import {
 	Button,
 	Input,
 } from "@nextui-org/react";
+
+type Tier = {
+	id: string;
+	name: string;
+	requirement: number;
+	created_at: Date;
+	updated_at: Date;
+};
 
 // Mock data for Tiers
 const mockTiers = [
@@ -37,21 +45,27 @@ const mockTiers = [
 const Tiers = () => {
 	const [tiers, setTiers] = useState(mockTiers);
 	const [isModalOpen, setIsModalOpen] = useState(false);
-	const [editTier, setEditTier] = useState<any>(null);
-	const [newTier, setNewTier] = useState<any>({
+	const [editTier, setEditTier] = useState<Tier | null>(null);
+	const [newTier, setNewTier] = useState<Tier>({
+		id: "",
 		name: "",
 		requirement: 0,
+		created_at: new Date(),
+		updated_at: new Date(),
 	});
 
 	const handleAddTier = () => {
 		setNewTier({
+			id: "", // Placeholder ID
 			name: "",
 			requirement: 0,
+			created_at: new Date(), // Default current date
+			updated_at: new Date(), // Default current date
 		});
 		setIsModalOpen(true);
 	};
 
-	const handleEditTier = (tier: any) => {
+	const handleEditTier = (tier: Tier) => {
 		setEditTier(tier);
 		setIsModalOpen(true);
 	};
@@ -63,7 +77,9 @@ const Tiers = () => {
 	const handleSaveTier = () => {
 		if (editTier) {
 			setTiers((prev) =>
-				prev.map((tier) => (tier.id === editTier.id ? { ...editTier } : tier))
+				prev.map((tier) =>
+					tier.id === editTier.id ? { ...tier, ...editTier } : tier
+				)
 			);
 		} else {
 			const newId = Date.now().toString();
@@ -79,8 +95,11 @@ const Tiers = () => {
 		}
 		setEditTier(null);
 		setNewTier({
+			id: "",
 			name: "",
 			requirement: 0,
+			created_at: new Date(),
+			updated_at: new Date(),
 		});
 		setIsModalOpen(false);
 	};
@@ -134,23 +153,32 @@ const Tiers = () => {
 							value={(editTier || newTier)?.name || ""}
 							onChange={(e) => {
 								const value = e.target.value;
-								editTier
-									? setEditTier({ ...editTier, name: value })
-									: setNewTier({ ...newTier, name: value });
+								if (editTier) {
+									setEditTier((prev) =>
+										prev ? { ...prev, name: value } : null
+									);
+								} else {
+									setNewTier((prev) => ({ ...prev, name: value }));
+								}
 							}}
 						/>
 						<Input
 							label='Requirement'
 							type='number'
-							value={(editTier || newTier)?.requirement || 0}
+							value={((editTier || newTier)?.requirement || 0).toString()}
 							onChange={(e) => {
 								const value = Number(e.target.value);
-								editTier
-									? setEditTier({ ...editTier, requirement: value })
-									: setNewTier({ ...newTier, requirement: value });
+								if (editTier) {
+									setEditTier((prev) =>
+										prev ? { ...prev, requirement: value } : null
+									);
+								} else {
+									setNewTier((prev) => ({ ...prev, requirement: value }));
+								}
 							}}
 						/>
 					</ModalBody>
+
 					<ModalFooter>
 						<Button
 							variant='flat'

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Edit, Trash2, Plus } from "lucide-react";
 import {
 	Table,
@@ -15,6 +15,18 @@ import {
 	Button,
 	Input,
 } from "@nextui-org/react";
+
+type Barter = {
+	id?: string;
+	user1_email?: string;
+	user2_email?: string;
+	status?: string;
+	handled_by_ai?: string;
+	meetup_id?: string | null;
+	completed_at?: Date | null;
+	created_at?: Date;
+	updated_at?: Date;
+};
 
 // Mock data for Barters
 const mockBarters = [
@@ -43,16 +55,20 @@ const mockBarters = [
 ];
 
 const BartersList = () => {
-	const [barters, setBarters] = useState(mockBarters);
-	const [isModalOpen, setIsModalOpen] = useState(false);
-	const [editBarter, setEditBarter] = useState<any>(null);
-	const [newBarter, setNewBarter] = useState<any>({
+	const [barters, setBarters] = useState<Barter[]>(mockBarters);
+	const [editBarter, setEditBarter] = useState<Barter | null>(null);
+	const [newBarter, setNewBarter] = useState<Barter>({
+		id: "",
 		user1_email: "",
 		user2_email: "",
 		status: "ongoing",
 		handled_by_ai: "",
+		meetup_id: null,
+		completed_at: null,
+		created_at: new Date(),
+		updated_at: new Date(),
 	});
-
+	const [isModalOpen, setIsModalOpen] = useState(false);
 	const handleAddBarter = () => {
 		setNewBarter({
 			user1_email: "",
@@ -63,12 +79,12 @@ const BartersList = () => {
 		setIsModalOpen(true);
 	};
 
-	const handleEditBarter = (barter: any) => {
+	const handleEditBarter = (barter: Barter) => {
 		setEditBarter(barter);
 		setIsModalOpen(true);
 	};
 
-	const handleDeleteBarter = (id: string) => {
+	const handleDeleteBarter = (id: string | undefined) => {
 		setBarters((prev) => prev.filter((item) => item.id !== id));
 	};
 
@@ -146,9 +162,11 @@ const BartersList = () => {
 							value={(editBarter || newBarter)?.user1_email || ""}
 							onChange={(e) => {
 								const value = e.target.value;
-								editBarter
-									? setEditBarter({ ...editBarter, user1_email: value })
-									: setNewBarter({ ...newBarter, user1_email: value });
+								if (editBarter) {
+									setEditBarter((prev) => ({ ...prev, user1_email: value }));
+								} else {
+									setNewBarter((prev) => ({ ...prev, user1_email: value }));
+								}
 							}}
 						/>
 						<Input
@@ -156,9 +174,11 @@ const BartersList = () => {
 							value={(editBarter || newBarter)?.user2_email || ""}
 							onChange={(e) => {
 								const value = e.target.value;
-								editBarter
-									? setEditBarter({ ...editBarter, user2_email: value })
-									: setNewBarter({ ...newBarter, user2_email: value });
+								if (editBarter) {
+									setEditBarter((prev) => ({ ...prev, user2_email: value }));
+								} else {
+									setNewBarter((prev) => ({ ...prev, user2_email: value }));
+								}
 							}}
 						/>
 						<Input
@@ -166,9 +186,11 @@ const BartersList = () => {
 							value={(editBarter || newBarter)?.handled_by_ai || ""}
 							onChange={(e) => {
 								const value = e.target.value;
-								editBarter
-									? setEditBarter({ ...editBarter, handled_by_ai: value })
-									: setNewBarter({ ...newBarter, handled_by_ai: value });
+								if (editBarter) {
+									setEditBarter((prev) => ({ ...prev, handled_by_ai: value }));
+								} else {
+									setNewBarter((prev) => ({ ...prev, handled_by_ai: value }));
+								}
 							}}
 						/>
 					</ModalBody>

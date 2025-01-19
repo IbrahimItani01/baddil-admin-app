@@ -37,7 +37,7 @@ const mockBartersWithLocations = [
 ];
 
 const BartersLocations = () => {
-	const [barters, setBarters] = useState(mockBartersWithLocations);
+	const [barters] = useState(mockBartersWithLocations);
 
 	return (
 		<Table aria-label='Barters Table with Location'>

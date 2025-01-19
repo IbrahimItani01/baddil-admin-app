@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Edit, Trash2, Plus } from "lucide-react";
 import {
 	Table,
@@ -20,6 +20,14 @@ import {
 	DropdownItem,
 } from "@nextui-org/react";
 
+interface ExpenseRecord {
+	id?: string;
+	amount: number;
+	date: string; // Ensured to be a string
+	description: string;
+	expense_type: string;
+}
+
 const mockExpenses = [
 	{
 		id: "1",
@@ -40,11 +48,11 @@ const mockExpenses = [
 const expenseTypes = ["salary", "broker_compensation", "office_supplies"];
 
 const ExpensesTable = () => {
-	const [data, setData] = useState(mockExpenses);
+	const [data, setData] = useState<ExpenseRecord[]>(mockExpenses);
 	const [isModalOpen, setIsModalOpen] = useState(false);
-	const [editRecord, setEditRecord] = useState<any>(null);
-	const [newRecord, setNewRecord] = useState<any>({
-		amount: "",
+	const [editRecord, setEditRecord] = useState<ExpenseRecord | null>(null);
+	const [newRecord, setNewRecord] = useState<ExpenseRecord>({
+		amount: 0,
 		description: "",
 		expense_type: "",
 		date: new Date().toISOString().slice(0, 10),
@@ -52,7 +60,7 @@ const ExpensesTable = () => {
 
 	const handleAddRecord = () => {
 		setNewRecord({
-			amount: "",
+			amount: 0,
 			description: "",
 			expense_type: "",
 			date: new Date().toISOString().slice(0, 10),
@@ -60,12 +68,12 @@ const ExpensesTable = () => {
 		setIsModalOpen(true);
 	};
 
-	const handleEditRecord = (record: any) => {
+	const handleEditRecord = (record: ExpenseRecord) => {
 		setEditRecord(record);
 		setIsModalOpen(true);
 	};
 
-	const handleDeleteRecord = (id: string) => {
+	const handleDeleteRecord = (id: string | undefined) => {
 		setData((prev) => prev.filter((item) => item.id !== id));
 	};
 
@@ -82,7 +90,7 @@ const ExpensesTable = () => {
 		}
 		setEditRecord(null);
 		setNewRecord({
-			amount: "",
+			amount: 0,
 			description: "",
 			expense_type: "",
 			date: new Date().toISOString().slice(0, 10),
@@ -144,22 +152,33 @@ const ExpensesTable = () => {
 					<ModalBody>
 						<Input
 							label='Amount'
-							value={(editRecord || newRecord)?.amount || ""}
+							value={String((editRecord || newRecord)?.amount || 0)} // Convert number to string
 							onChange={(e) => {
 								const value = e.target.value;
-								editRecord
-									? setEditRecord({ ...editRecord, amount: value })
-									: setNewRecord({ ...newRecord, amount: value });
+								if (editRecord) {
+									setEditRecord({
+										...editRecord,
+										amount: parseFloat(value) || 0,
+									}); // Convert string to number
+								} else {
+									setNewRecord({
+										...newRecord,
+										amount: parseFloat(value) || 0,
+									}); // Convert string to number
+								}
 							}}
 						/>
+
 						<Input
 							label='Description'
 							value={(editRecord || newRecord)?.description || ""}
 							onChange={(e) => {
 								const value = e.target.value;
-								editRecord
-									? setEditRecord({ ...editRecord, description: value })
-									: setNewRecord({ ...newRecord, description: value });
+								if (editRecord) {
+									setEditRecord({ ...editRecord, description: value });
+								} else {
+									setNewRecord({ ...newRecord, description: value });
+								}
 							}}
 						/>
 						<Dropdown>
@@ -173,9 +192,15 @@ const ExpensesTable = () => {
 								aria-label='Select Type'
 								onAction={(key) => {
 									if (editRecord) {
-										setEditRecord((prev) => ({ ...prev, expense_type: key }));
+										setEditRecord((prev) => {
+											if (!prev) return null;
+											return { ...prev, expense_type: key as string };
+										});
 									} else {
-										setNewRecord((prev) => ({ ...prev, expense_type: key }));
+										setNewRecord((prev) => ({
+											...prev,
+											expense_type: key as string,
+										}));
 									}
 								}}
 							>
