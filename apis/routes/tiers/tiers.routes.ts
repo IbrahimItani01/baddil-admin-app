@@ -1,5 +1,6 @@
 import axios from "axios";
 import { APIS_BASE_URL } from "../../main";
+import { Tier } from "../../../store/slices/tiers.slice";
 
 const getAuthToken = () => localStorage.getItem("token");
 
@@ -21,7 +22,7 @@ export const createTier = async (tierData: unknown): Promise<unknown> => {
 	}
 };
 
-export const getTiers = async (): Promise<unknown> => {
+export const getTiers = async (): Promise<Tier[] | false> => {
 	try {
 		const token = getAuthToken();
 		if (!token) return false;
@@ -32,7 +33,7 @@ export const getTiers = async (): Promise<unknown> => {
 			},
 		});
 
-		return response.data;
+		return response.data.data;
 	} catch (error) {
 		console.error("Error fetching tiers:", error);
 		return false;
