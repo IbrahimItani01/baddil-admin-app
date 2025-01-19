@@ -20,7 +20,9 @@ import {
 	addBarter,
 	Barter,
 	deleteBarter,
+	Location,
 	setBartersData,
+	setLocationsData,
 } from "../../../../store/slices/barters.slice";
 
 const BartersList = () => {
@@ -32,7 +34,9 @@ const BartersList = () => {
 		user1: { email: "" },
 		user2: { email: "" },
 		meetup: { location: { name: "", latitude: 0, longitude: 0 } },
+		created_at: new Date(),
 	});
+
 	const [isModalOpen, setIsModalOpen] = useState(false);
 
 	const handleAddBarter = () => {
@@ -41,6 +45,7 @@ const BartersList = () => {
 			user1: { email: "" },
 			user2: { email: "" },
 			meetup: { location: { name: "", latitude: 0, longitude: 0 } },
+			created_at: new Date(),
 		});
 		setEditBarter(null);
 		setIsModalOpen(true);
@@ -57,11 +62,21 @@ const BartersList = () => {
 
 	const handleSaveBarter = () => {
 		if (editBarter) {
-			dispatch(
-				setBartersData(
-					barters.map((item) => (item.id === editBarter.id ? editBarter : item))
-				)
+			const updatedBarters = barters.map((item) =>
+				item.id === editBarter.id ? editBarter : item
 			);
+			// Separate dispatch for bartersData
+			dispatch(setBartersData(updatedBarters));
+
+			// Separate dispatch for locationsData
+			const locations = updatedBarters.reduce((acc, barter) => {
+				if (barter.meetup?.location) {
+					const { name, latitude, longitude } = barter.meetup.location;
+					acc[name] = { name, latitude, longitude };
+				}
+				return acc;
+			}, {} as Record<string, Location>);
+			dispatch(setLocationsData(locations));
 		} else {
 			const newId = Date.now().toString();
 			dispatch(addBarter({ ...newBarter, id: newId }));
