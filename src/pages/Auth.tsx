@@ -6,6 +6,7 @@ import Logo from "/src/assets/no-title/logo-no-background.png";
 import { useAppDispatch } from "../../store/store";
 import { useNavigate } from "react-router";
 import CustomModal from "../components/base/Modal";
+import { initializeApp } from "../../lib/utils/general.utils";
 
 export default function Auth() {
   const [isVisible, setIsVisible] = useState(false);
@@ -26,6 +27,7 @@ export default function Auth() {
 
     try {
       await loginUser(dispatch, loginForm.email, loginForm.password);
+      await initializeApp(dispatch)
       navigate("/dashboard");
     } catch (e) {
       console.log(e);
