@@ -15,11 +15,14 @@ import BartersList from "./pages/dashboard/pages/Barters";
 import { useAppDispatch } from "../store/store";
 import { useEffect } from "react";
 import { initializeApp } from "../lib/utils/general.utils";
+
 function App() {
+
 	const dispatch = useAppDispatch();
-	useEffect(()=>{
-		initializeApp(dispatch)
-	},[])
+	useEffect(() => {
+		initializeApp(dispatch);
+	}, []);
+
 	return (
 		<NextUIProvider>
 			<Routes>
