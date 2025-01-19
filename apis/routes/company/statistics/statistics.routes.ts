@@ -5,7 +5,7 @@ const STATISTICS_ENDPOINT = `${APIS_BASE_URL}/statistics/user-count`;
 
 export const fetchUserCounts = async () => {
   try {
-    const token = localStorage.getItem("authToken"); 
+    const token = localStorage.getItem("token"); 
     const response = await axios.get(STATISTICS_ENDPOINT, {
       headers: {
         Authorization: `Bearer ${token}`, 
