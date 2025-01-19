@@ -1,5 +1,6 @@
 import axios from "axios";
 import { APIS_BASE_URL } from "../../main";
+import { BartersState } from "../../../store/slices/barters.slice";
 
 const getAuthToken = () => localStorage.getItem("token");
 
@@ -25,7 +26,7 @@ export const getUserBarters = async (userId?: string): Promise<unknown> => {
 	}
 };
 
-export const getAllBarters = async (): Promise<unknown> => {
+export const getAllBarters = async (): Promise<BartersState | false> => {
 	try {
 		const token = getAuthToken();
 		if (!token) return false;
@@ -36,7 +37,7 @@ export const getAllBarters = async (): Promise<unknown> => {
 			},
 		});
 
-		return response.data;
+		return response.data.data;
 	} catch (error) {
 		console.error("Error fetching all barters:", error);
 		return false;
