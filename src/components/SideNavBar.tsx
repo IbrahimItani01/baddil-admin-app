@@ -35,14 +35,10 @@ const SideNavBar = () => {
 					icon={<Users />}
 					label='Users'
 				>
-					<MenuItem
-						component={<Link to={"/dashboard/barterers"} />}
-					>
+					<MenuItem component={<Link to={"/dashboard/barterers"} />}>
 						Barterers
 					</MenuItem>
-					<MenuItem
-						component={<Link to={"/dashboard/brokers"} />}
-					>
+					<MenuItem component={<Link to={"/dashboard/brokers"} />}>
 						Brokers
 					</MenuItem>
 				</SubMenu>
@@ -51,19 +47,13 @@ const SideNavBar = () => {
 					icon={<ChartArea />}
 					label='Insights'
 				>
-					<MenuItem
-						component={<Link to={"/dashboard/barters"} />}
-					>
+					<MenuItem component={<Link to={"/dashboard/barters"} />}>
 						Barters
 					</MenuItem>
-					<MenuItem
-						component={<Link to={"/dashboard/barters-locations"} />}
-					>
+					<MenuItem component={<Link to={"/dashboard/barters-locations"} />}>
 						Barter Locations
 					</MenuItem>
-					<MenuItem
-						component={<Link to={"/dashboard/tiers"} />}
-					>
+					<MenuItem component={<Link to={"/dashboard/tiers"} />}>
 						Tiers
 					</MenuItem>
 				</SubMenu>
@@ -72,14 +62,10 @@ const SideNavBar = () => {
 					icon={<Landmark />}
 					label='Finances'
 				>
-					<MenuItem
-						component={<Link to={"/dashboard/revenues"} />}
-					>
+					<MenuItem component={<Link to={"/dashboard/revenues"} />}>
 						Revenues
 					</MenuItem>
-					<MenuItem
-						component={<Link to={"/dashboard/expenses"} />}
-					>
+					<MenuItem component={<Link to={"/dashboard/expenses"} />}>
 						Expenses
 					</MenuItem>
 				</SubMenu>

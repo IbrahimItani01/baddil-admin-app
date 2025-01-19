@@ -7,7 +7,9 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
-	const isAuthenticated = useAppSelector((state) => state.user.isLoggedIn) || localStorage.getItem('token');
+	const isAuthenticated =
+		useAppSelector((state) => state.user.isLoggedIn) ||
+		localStorage.getItem("token");
 
 	if (!isAuthenticated) {
 		return (

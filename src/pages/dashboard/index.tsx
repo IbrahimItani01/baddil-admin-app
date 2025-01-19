@@ -4,7 +4,7 @@ import UsersOverview from "../../components/base/dashboard/overview/UsersOvervie
 
 const DashboardMain = () => {
 	return (
-		<div className="flex flex-wrap gap-5 mx-5">
+		<div className='flex flex-wrap gap-5 mx-5'>
 			<UsersOverview />
 			<BartersOverview />
 			<LocationsOverview />

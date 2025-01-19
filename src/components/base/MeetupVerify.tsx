@@ -1,8 +1,16 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { checkUserByEmail } from "../../../apis/routes/user/user.routes";
-import { CheckCircle, AlertCircle } from "lucide-react"; // Importing icons from Lucide
+import { CheckCircle, AlertCircle } from "lucide-react";
 import { formatDate } from "../../../lib/utils/general.utils";
+
+export interface UserResponse {
+	name: string;
+	email: string;
+	created_at: string;
+	user_status_id: string;
+}
+
 const MeetupVerify = () => {
 	const { email } = useParams();
 	const [userData, setUserData] = useState({
@@ -18,12 +26,12 @@ const MeetupVerify = () => {
 			if (email) {
 				try {
 					const response = await checkUserByEmail(email);
-					if (response?.data) {
+					if (response) {
 						setUserData({
-							name: response.data.name || "",
-							email: response.data.email || "",
-							createdAt: formatDate(response.data.created_at) || "",
-							userStatus: response.data.user_status_id || "",
+							name: response.name || "",
+							email: response.email || "",
+							createdAt: formatDate(response.created_at) || "",
+							userStatus: response.user_status_id || "",
 						});
 						setNoData(false);
 					}
