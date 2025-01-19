@@ -11,12 +11,10 @@ export interface Location {
 
 export interface LocationsState {
 	locations: Location[];
-	
 }
 
 const initialState: LocationsState = {
 	locations: [],
-	
 };
 
 const locationsSlice = createSlice({
@@ -30,11 +28,9 @@ const locationsSlice = createSlice({
 		addLocation: (state, action: PayloadAction<Location>) => {
 			state.locations.push(action.payload);
 		},
-	
 	},
 });
 
-export const { setLocations, addLocation } =
-	locationsSlice.actions;
+export const { setLocations, addLocation } = locationsSlice.actions;
 
 export default locationsSlice.reducer;
