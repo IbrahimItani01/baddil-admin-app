@@ -41,8 +41,7 @@ export const initializeApp = async (dispatch: Dispatch) => {
 		if (profitsData) dispatch(setProfitsData(profitsData));
 		if (expensesData) dispatch(setExpensesData(expensesData));
 		if (usersData) dispatch(setUsersData(usersData));
-		if (bartersData)
-			dispatch(setBartersData(bartersData));
+		if (bartersData) dispatch(setBartersData(bartersData));
 		if (locationsData) dispatch(setLocations(locationsData));
 	} catch (e) {
 		console.error(e);
