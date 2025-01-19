@@ -22,7 +22,7 @@ export const formatDate = (date: string) => {
 export const initializeApp = async (dispatch: Dispatch) => {
 	try {
 		const [
-			bartersState,
+			bartersData,
 			usersData,
 			expensesData,
 			profitsData,
@@ -36,14 +36,13 @@ export const initializeApp = async (dispatch: Dispatch) => {
 			getTiers(),
 			getAllLocations(),
 		]);
-
 		// Dispatch actions based on the retrieved data
 		if (tiersData) dispatch(setTiersData(tiersData));
 		if (profitsData) dispatch(setProfitsData(profitsData));
 		if (expensesData) dispatch(setExpensesData(expensesData));
 		if (usersData) dispatch(setUsersData(usersData));
-		if (bartersState && bartersState.bartersData)
-			dispatch(setBartersData(bartersState.bartersData));
+		if (bartersData)
+			dispatch(setBartersData(bartersData));
 		if (locationsData) dispatch(setLocations(locationsData));
 	} catch (e) {
 		console.error(e);
