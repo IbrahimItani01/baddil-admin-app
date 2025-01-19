@@ -1,45 +1,39 @@
 import axios from "axios";
 import { APIS_BASE_URL } from "../../main";
 import { login, setEmail, setUserName } from "../../../store/slices/user.slice";
+import { Dispatch } from "redux";
 
 export const loginUser = async (
-	dispatch: any,
+	dispatch: Dispatch,
 	email: string,
 	password: string
-) => {
+): Promise<boolean> => {
 	try {
 		const response = await axios.post(`${APIS_BASE_URL}/auth/login`, {
 			emailOrIdToken: email,
 			password,
 		});
 		const { token, user } = response.data.data;
-		await dispatch(setUserName(user.name))
-		await dispatch(setEmail(user.email))
-		await dispatch(login())
+		dispatch(setUserName(user.name));
+		dispatch(setEmail(user.email));
+		dispatch(login());
 		localStorage.setItem("token", token);
-		// TODO: replace with success pop up from nextui
-	} catch (error) {
-		// TODO: replace with error pop up from nextui
-		console.log(error)
+		return true;
+	} catch {
+		return false;
 	}
 };
 
-export const sendForgetPasswordEmail = async (email: string) => {
+export const sendForgetPasswordEmail = async (
+	email: string
+): Promise<boolean> => {
 	try {
 		const response = await axios.post(
 			`${APIS_BASE_URL}/firebase/reset-password`,
-			{
-				email,
-			}
+			{ email }
 		);
-		if (response.data.success) {
-			// TODO: replace with success pop up from nextui
-
-			return true;
-		}
-	} catch (error) {
-		// TODO: replace with error pop up from nextui
-		console.error(error);
+		return response.data.success;
+	} catch {
 		return false;
 	}
 };

@@ -4,7 +4,9 @@ import { Barter } from "../../../store/slices/barters.slice";
 
 const getAuthToken = () => localStorage.getItem("token");
 
-export const getUserBarters = async (userId?: string): Promise<unknown> => {
+export const getUserBarters = async (
+	userId?: string
+): Promise<Barter[] | false> => {
 	try {
 		const token = getAuthToken();
 		if (!token) return false;
@@ -19,9 +21,8 @@ export const getUserBarters = async (userId?: string): Promise<unknown> => {
 			},
 		});
 
-		return response.data;
-	} catch (error) {
-		console.error("Error fetching user barters:", error);
+		return response.data.data;
+	} catch {
 		return false;
 	}
 };
@@ -38,8 +39,7 @@ export const getAllBarters = async (): Promise<Barter[] | false> => {
 		});
 
 		return response.data.data;
-	} catch (error) {
-		console.error("Error fetching all barters:", error);
+	} catch {
 		return false;
 	}
 };

@@ -2,41 +2,59 @@ import axios from "axios";
 import { APIS_BASE_URL } from "../../main";
 import { Location } from "../../../store/slices/locations.slice";
 
-export const createLocation = async (locationData: Location) => {
+// Helper to retrieve auth token from local storage
+const getAuthToken = () => localStorage.getItem("token");
+
+// Create a new location
+export const createLocation = async (
+	locationData: Location
+): Promise<unknown> => {
 	try {
+		const token = getAuthToken();
+		if (!token) return false;
 		const response = await axios.post(
 			`${APIS_BASE_URL}/locations/create`,
-			locationData
+			locationData,
+			{
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+			}
 		);
 		return response.data;
-	} catch (error) {
-		console.error("Error creating location:", error.response || error.message);
-		throw error;
+	} catch {
+		return false;
 	}
 };
 
-export const getLocationById = async (id: string) => {
+// Fetch location by ID
+export const getLocationById = async (id: string): Promise<unknown> => {
 	try {
-		const response = await axios.get(`${APIS_BASE_URL}/locations/${id}`);
+		const token = getAuthToken();
+		if (!token) return false;
+		const response = await axios.get(`${APIS_BASE_URL}/locations/${id}`, {
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+		});
 		return response.data;
-	} catch (error) {
-		console.error(
-			"Error fetching location by ID:",
-			error.response || error.message
-		);
-		throw error;
+	} catch {
+		return false;
 	}
 };
 
-export const getAllLocations = async () => {
+// Fetch all locations
+export const getAllLocations = async (): Promise<Location[] | false> => {
 	try {
-		const response = await axios.get(`${APIS_BASE_URL}/locations`);
+		const token = getAuthToken();
+		if (!token) return false;
+		const response = await axios.get(`${APIS_BASE_URL}/locations`, {
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+		});
 		return response.data.data;
-	} catch (error) {
-		console.error(
-			"Error fetching all locations:",
-			error.response || error.message
-		);
-		throw error;
+	} catch {
+		return false;
 	}
 };
