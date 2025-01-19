@@ -12,7 +12,14 @@ import ExpensesTable from "./pages/dashboard/pages/Expenses";
 import ProfitsTable from "./pages/dashboard/pages/Revenues";
 import BartersLocations from "./pages/dashboard/pages/BartersLocations";
 import BartersList from "./pages/dashboard/pages/Barters";
+import { useAppDispatch } from "../store/store";
+import { useEffect } from "react";
+import { initializeApp } from "../lib/utils/general.utils";
 function App() {
+	const dispatch = useAppDispatch();
+	useEffect(()=>{
+		initializeApp(dispatch)
+	},[])
 	return (
 		<NextUIProvider>
 			<Routes>
