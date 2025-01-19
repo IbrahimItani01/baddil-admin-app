@@ -15,35 +15,17 @@ import {
 	Button,
 	Input,
 } from "@nextui-org/react";
-
-type Tier = {
-	id: string;
-	name: string;
-	requirement: number;
-	created_at: Date;
-	updated_at: Date;
-};
-
-// Mock data for Tiers
-const mockTiers = [
-	{
-		id: "1",
-		name: "Silver",
-		requirement: 10,
-		created_at: new Date(),
-		updated_at: new Date(),
-	},
-	{
-		id: "2",
-		name: "Gold",
-		requirement: 20,
-		created_at: new Date(),
-		updated_at: new Date(),
-	},
-];
+import { useAppDispatch, useAppSelector } from "../../../../store/store";
+import {
+	addTier,
+	deleteTier,
+	editTierReducer,
+	Tier,
+} from "../../../../store/slices/tiers.slice";
 
 const Tiers = () => {
-	const [tiers, setTiers] = useState(mockTiers);
+	const dispatch = useAppDispatch();
+	const tiers = useAppSelector((state) => state.tiers.tiersData);
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [editTier, setEditTier] = useState<Tier | null>(null);
 	const [newTier, setNewTier] = useState<Tier>({
@@ -56,12 +38,13 @@ const Tiers = () => {
 
 	const handleAddTier = () => {
 		setNewTier({
-			id: "", // Placeholder ID
+			id: "",
 			name: "",
 			requirement: 0,
-			created_at: new Date(), // Default current date
-			updated_at: new Date(), // Default current date
+			created_at: new Date(),
+			updated_at: new Date(),
 		});
+		setEditTier(null);
 		setIsModalOpen(true);
 	};
 
@@ -71,36 +54,23 @@ const Tiers = () => {
 	};
 
 	const handleDeleteTier = (id: string) => {
-		setTiers((prev) => prev.filter((tier) => tier.id !== id));
+		dispatch(deleteTier(id));
 	};
 
 	const handleSaveTier = () => {
 		if (editTier) {
-			setTiers((prev) =>
-				prev.map((tier) =>
-					tier.id === editTier.id ? { ...tier, ...editTier } : tier
-				)
-			);
+			dispatch(editTierReducer({ id: editTier.id, updatedTier: editTier }));
 		} else {
 			const newId = Date.now().toString();
-			setTiers((prev) => [
-				...prev,
-				{
+			dispatch(
+				addTier({
 					...newTier,
 					id: newId,
 					created_at: new Date(),
 					updated_at: new Date(),
-				},
-			]);
+				})
+			);
 		}
-		setEditTier(null);
-		setNewTier({
-			id: "",
-			name: "",
-			requirement: 0,
-			created_at: new Date(),
-			updated_at: new Date(),
-		});
 		setIsModalOpen(false);
 	};
 
@@ -178,7 +148,6 @@ const Tiers = () => {
 							}}
 						/>
 					</ModalBody>
-
 					<ModalFooter>
 						<Button
 							variant='flat'
