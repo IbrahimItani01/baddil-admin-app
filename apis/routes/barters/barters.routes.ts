@@ -1,6 +1,6 @@
 import axios from "axios";
 import { APIS_BASE_URL } from "../../main";
-import { BartersState } from "../../../store/slices/barters.slice";
+import { Barter } from "../../../store/slices/barters.slice";
 
 const getAuthToken = () => localStorage.getItem("token");
 
@@ -26,7 +26,7 @@ export const getUserBarters = async (userId?: string): Promise<unknown> => {
 	}
 };
 
-export const getAllBarters = async (): Promise<BartersState | false> => {
+export const getAllBarters = async (): Promise<Barter[] | false> => {
 	try {
 		const token = getAuthToken();
 		if (!token) return false;
