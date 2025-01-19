@@ -1,77 +1,59 @@
-import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
+import {
+	LineChart,
+	Line,
+	XAxis,
+	YAxis,
+	CartesianGrid,
+	Tooltip,
+	Legend,
+	ResponsiveContainer,
+} from "recharts";
+import { useMemo } from "react";
+import { useAppSelector } from "../../../../../store/store";
 
-interface PieChartProps {
-	cx: number;
-	cy: number;
-	midAngle: number;
-	innerRadius: number;
-	outerRadius: number;
-	percent: number;
-	index: number;
-}
-const data = [
-	{ name: "Group A", value: 400 },
-	{ name: "Group B", value: 300 },    
-];
+const BartersOverview = () => {
+	const { bartersData } = useAppSelector((state) => state.barters);
 
-const COLORS = ["#e60000", "#c26363"];
+	const chartData = useMemo(() => {
+		const groupedData: Record<string, number> = {};
 
-const RADIAN = Math.PI / 180;
-const renderCustomizedLabel = ({
-	cx,
-	cy,
-	midAngle,
-	innerRadius,
-	outerRadius,
-	percent,
-}: PieChartProps) => {
-	const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
-	const x = cx + radius * Math.cos(-midAngle * RADIAN);
-	const y = cy + radius * Math.sin(-midAngle * RADIAN);
+		bartersData.forEach((barter) => {
+			const date = new Date(barter.created_at);
+			const dateKey = `${date.getFullYear()}-${
+				date.getMonth() + 1
+			}-${date.getDate()}`;
+			groupedData[dateKey] = (groupedData[dateKey] || 0) + 1;
+		});
+
+		return Object.keys(groupedData).map((dateKey) => ({
+			date: dateKey,
+			count: groupedData[dateKey],
+		}));
+	}, [bartersData]);
 
 	return (
-		<text
-			x={x}
-			y={y}
-			fill='white'
-			textAnchor={x > cx ? "start" : "end"}
-			dominantBaseline='central'
-		>
-			{`${(percent * 100).toFixed(0)}%`}
-		</text>
+		<div className='text-2xl font-semibold ml-5 flex border-2 w-fit mt-20 rounded-medium p-5'>
+			<h1>Barters Over Time</h1>
+			<ResponsiveContainer
+				width='100%'
+				height={300}
+			>
+				<LineChart data={chartData}>
+					<CartesianGrid strokeDasharray='3 3' />
+					<XAxis dataKey='date' />
+					<YAxis />
+					<Tooltip />
+					<Legend />
+					<Line
+						type='monotone'
+						dataKey='count'
+						stroke='#e60000'
+						activeDot={{ r: 8 }}
+					/>
+				</LineChart>
+			</ResponsiveContainer>
+		</div>
 	);
 };
 
-const BartersOverview = () => {
-  return (
-    <div className='text-2xl font-semibold ml-5 flex border-2 w-fit mt-20 rounded-medium p-5'>
-                <h1>Barters</h1>
-                <ResponsiveContainer
-                    width={300}
-                    height={300}
-                >
-                    <PieChart>
-                        <Pie
-                            data={data}
-                            cx='50%'
-                            cy='50%'
-                            labelLine={false}
-                            label={renderCustomizedLabel}
-                            outerRadius={80}
-                            fill='#8884d8'
-                            dataKey='value'
-                        >
-                            {data.map((entry, index) => (
-                                <Cell
-                                    key={`cell-${index}`}
-                                    fill={COLORS[index % COLORS.length]}
-                                />
-                            ))}
-                        </Pie>
-                    </PieChart>
-                </ResponsiveContainer>
-            </div>
-  )
-}
-
-export default BartersOverview
+export default BartersOverview;
