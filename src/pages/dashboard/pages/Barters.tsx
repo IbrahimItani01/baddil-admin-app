@@ -65,10 +65,9 @@ const BartersList = () => {
 			const updatedBarters = barters.map((item) =>
 				item.id === editBarter.id ? editBarter : item
 			);
-			// Separate dispatch for bartersData
+
 			dispatch(setBartersData(updatedBarters));
 
-			// Separate dispatch for locationsData
 			const locations = updatedBarters.reduce((acc, barter) => {
 				if (barter.meetup?.location) {
 					const { name, latitude, longitude } = barter.meetup.location;

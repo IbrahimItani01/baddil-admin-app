@@ -29,15 +29,15 @@ const Users = ({ isBroker = false }: Props) => {
 	const dispatch = useAppDispatch();
 	const usersData = useAppSelector((state) => state.users.usersData);
 	const [editUserData, setEditUserData] = useState<User | null>(null);
-	const [isModalOpen, setIsModalOpen] = useState(false); // Modal visibility
+	const [isModalOpen, setIsModalOpen] = useState(false);
 	const userType = isBroker ? "broker" : "barterer";
 
 	const users = usersData[userType] || [];
 
-	const userStatuses = ["active", "flagged", "banned"]; // User status options
+	const userStatuses = ["active", "flagged", "banned"];
 
 	const handleEdit = (user: User) => {
-		setEditUserData(user); // Set user to be edited
+		setEditUserData(user);
 		setIsModalOpen(true);
 	};
 
@@ -47,7 +47,7 @@ const Users = ({ isBroker = false }: Props) => {
 				...editUserData,
 				user_status: {
 					...editUserData.user_status,
-					status, // Update the status field
+					status,
 				},
 			});
 		}
@@ -112,7 +112,7 @@ const Users = ({ isBroker = false }: Props) => {
 								</DropdownTrigger>
 								<DropdownMenu
 									aria-label='Select User Status'
-									onAction={(key) => handleStatusChange(key as string)} // Ensure key is a string
+									onAction={(key) => handleStatusChange(key as string)}
 								>
 									{userStatuses.map((status) => (
 										<DropdownItem
