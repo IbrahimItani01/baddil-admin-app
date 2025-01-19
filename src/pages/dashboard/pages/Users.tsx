@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { Edit, Trash2 } from "lucide-react";
+import { useState } from "react";
+import { Edit } from "lucide-react";
 import {
 	Table,
 	TableBody,
@@ -13,92 +13,54 @@ import {
 	ModalBody,
 	ModalFooter,
 	Button,
-	Input,
+	Dropdown,
+	DropdownTrigger,
+	DropdownMenu,
+	DropdownItem,
 } from "@nextui-org/react";
-
-const mockData = {
-	barterer: [
-		{
-			id: "1",
-			name: "John Doe",
-			email: "john@example.com",
-			user_type: { name: "Barterer" },
-			user_status: { status: "Active" },
-			subscription: { plan: "Basic", expires_at: "2025-02-10T00:00:00Z" },
-		},
-		{
-			id: "2",
-			name: "Jane Smith",
-			email: "jane@example.com",
-			user_type: { name: "Barterer" },
-			user_status: { status: "Suspended" },
-			subscription: { plan: "Premium", expires_at: "2025-03-15T00:00:00Z" },
-		},
-	],
-	broker: [
-		{
-			id: "3",
-			name: "Alice Johnson",
-			email: "alice@example.com",
-			user_type: { name: "Broker" },
-			user_status: { status: "Active" },
-			subscription: { plan: "Gold", expires_at: "2025-04-20T00:00:00Z" },
-		},
-	],
-};
-
-interface User {
-	id?: string;
-	name?: string;
-	email?: string;
-	user_type?: {
-		name: string;
-	};
-	user_status?: {
-		status: string;
-	};
-	subscription?: {
-		plan: string;
-		expires_at: string;
-	};
-}
+import { useAppDispatch, useAppSelector } from "../../../../store/store";
+import { editUser, User } from "../../../../store/slices/users.slice";
 
 interface Props {
 	isBroker?: boolean;
 }
 
 const Users = ({ isBroker = false }: Props) => {
-	const [users, setUsers] = useState<User[]>([]);
-	const [editUser, setEditUser] = useState<User | null>(null);
+	const dispatch = useAppDispatch();
+	const usersData = useAppSelector((state) => state.users.usersData);
+	const [editUserData, setEditUserData] = useState<User | null>(null);
 	const [isModalOpen, setIsModalOpen] = useState(false); // Modal visibility
 	const userType = isBroker ? "broker" : "barterer";
 
-	useEffect(() => {
-		const loadUsers = () => {
-			const result = mockData;
-			const filteredUsers = result[userType] || [];
-			setUsers(filteredUsers);
-		};
-		loadUsers();
-	}, [userType]);
+	const users = usersData[userType] || [];
 
-	const handleDelete = (id: string) => {
-		setUsers((prevUsers) => prevUsers.filter((user) => user.id !== id));
-	};
+	const userStatuses = ["active", "flagged", "banned"]; // User status options
 
 	const handleEdit = (user: User) => {
-		setEditUser(user); // Set user to be edited
+		setEditUserData(user); // Set user to be edited
 		setIsModalOpen(true);
 	};
 
-	const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		setEditUser({ ...editUser, [e.target.name]: e.target.value });
+	const handleStatusChange = (status: string) => {
+		if (editUserData) {
+			setEditUserData({
+				...editUserData,
+				user_status: {
+					...editUserData.user_status,
+					status, // Update the status field
+				},
+			});
+		}
 	};
 
 	const handleSave = () => {
-		if (editUser) {
-			setUsers((prevUsers) =>
-				prevUsers.map((user) => (user.id === editUser.id ? editUser : user))
+		if (editUserData) {
+			dispatch(
+				editUser({
+					userType,
+					userId: editUserData.id,
+					updatedUser: { user_status: editUserData.user_status },
+				})
 			);
 			setIsModalOpen(false);
 		}
@@ -115,33 +77,20 @@ const Users = ({ isBroker = false }: Props) => {
 					<TableColumn>Email</TableColumn>
 					<TableColumn>User Type</TableColumn>
 					<TableColumn>Status</TableColumn>
-					<TableColumn>Subscription Plan</TableColumn>
-					<TableColumn>Expires At</TableColumn>
 					<TableColumn>Actions</TableColumn>
 				</TableHeader>
 				<TableBody>
 					{users.map((user) => (
 						<TableRow key={user.id}>
-							<TableCell>{user?.name}</TableCell>
+							<TableCell>{user.name}</TableCell>
 							<TableCell>{user.email}</TableCell>
-							<TableCell>{user.user_type?.name}</TableCell>
-							<TableCell>{user.user_status?.status}</TableCell>
-							<TableCell>{user.subscription?.plan}</TableCell>
-							<TableCell>
-								{new Date(
-									user.subscription?.expires_at || ""
-								).toLocaleDateString()}
-							</TableCell>
-
+							<TableCell>{user.user_type.type}</TableCell>
+							<TableCell>{user.user_status.status}</TableCell>
 							<TableCell>
 								<div className='flex space-x-2'>
 									<Edit
 										className='cursor-pointer text-blue-500'
 										onClick={() => handleEdit(user)}
-									/>
-									<Trash2
-										className='cursor-pointer text-red-500'
-										onClick={() => handleDelete(user.id || "")} // Fallback to empty string if id is undefined
 									/>
 								</div>
 							</TableCell>
@@ -149,44 +98,32 @@ const Users = ({ isBroker = false }: Props) => {
 					))}
 				</TableBody>
 			</Table>
-			{editUser && (
+			{editUserData && (
 				<Modal
 					isOpen={isModalOpen}
 					onClose={() => setIsModalOpen(false)}
 				>
 					<ModalContent>
-						<ModalHeader>Edit User</ModalHeader>
+						<ModalHeader>Edit User Status</ModalHeader>
 						<ModalBody>
-							<Input
-								label='Name'
-								name='name'
-								value={editUser.name}
-								onChange={handleInputChange}
-							/>
-							<Input
-								label='Email'
-								name='email'
-								value={editUser.email}
-								onChange={handleInputChange}
-							/>
-							<Input
-								label='Subscription Plan'
-								name='subscription'
-								value={editUser.subscription?.plan || ""} // Use fallback value if undefined
-								onChange={(e) =>
-									setEditUser({
-										...editUser,
-										subscription: {
-											...(editUser.subscription || {
-												plan: "",
-												expires_at: "",
-											}), // Fallback if subscription is undefined
-											plan: e.target.value,
-											expires_at: editUser.subscription?.expires_at || "", // Fallback to empty string if undefined
-										},
-									})
-								}
-							/>
+							<Dropdown>
+								<DropdownTrigger>
+									<Button>{editUserData.user_status.status}</Button>
+								</DropdownTrigger>
+								<DropdownMenu
+									aria-label='Select User Status'
+									onAction={(key) => handleStatusChange(key as string)} // Ensure key is a string
+								>
+									{userStatuses.map((status) => (
+										<DropdownItem
+											key={status}
+											textValue={status}
+										>
+											{status}
+										</DropdownItem>
+									))}
+								</DropdownMenu>
+							</Dropdown>
 						</ModalBody>
 						<ModalFooter>
 							<Button
