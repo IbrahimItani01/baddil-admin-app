@@ -3,7 +3,6 @@ import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
 
 import authSlice from "./slices/auth.slice";
 import userSlice from "./slices/user.slice";
-import systemSlice from "./slices/system.slice";
 import bartersSlice from "./slices/barters.slice";
 import usersSlice from "./slices/users.slice";
 import profitsSlice from "./slices/profits.slice";
@@ -18,7 +17,6 @@ const store = configureStore({
 	reducer: {
 		user: userSlice,
 		auth: authSlice,
-		system: systemSlice,
 		barters: bartersSlice,
 		users: usersSlice,
 		expenses: expensesSlice,
