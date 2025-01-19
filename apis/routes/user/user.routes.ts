@@ -83,3 +83,28 @@ export const updateUserInfo = async (updateData: unknown): Promise<unknown> => {
 		return false;
 	}
 };
+export const fetchUsersByType = async (): Promise<unknown> => {
+	try {
+	  const token = localStorage.getItem("token");
+	  if (!token) {
+		console.error("No token found");
+		return false;
+	  }
+  
+	  const response = await axios.get(`${APIS_BASE_URL}/users/users-by-type`, {
+		headers: {
+		  Authorization: `Bearer ${token}`, // Attach JWT token for authentication
+		},
+	  });
+  
+	  if (response.data.success) {
+		return response.data.data; 
+	  } else {
+		console.error("Failed to fetch users by type");
+		return false;
+	  }
+	} catch (error) {
+	  console.error("Error fetching users by type:", error);
+	  return false;
+	}
+  };
