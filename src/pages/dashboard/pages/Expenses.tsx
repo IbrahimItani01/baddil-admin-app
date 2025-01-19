@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { Edit, Trash2, Plus } from "lucide-react";
+import { useDispatch } from "react-redux";
+
 import {
 	Table,
 	TableBody,
@@ -19,82 +21,70 @@ import {
 	DropdownMenu,
 	DropdownItem,
 } from "@nextui-org/react";
-
-interface ExpenseRecord {
-	id?: string;
-	amount: number;
-	date: string; // Ensured to be a string
-	description: string;
-	expense_type: string;
-}
-
-const mockExpenses = [
-	{
-		id: "1",
-		amount: 500,
-		date: "2025-01-10",
-		description: "Salary for January",
-		expense_type: "salary",
-	},
-	{
-		id: "2",
-		amount: 300,
-		date: "2025-01-11",
-		description: "Broker compensation",
-		expense_type: "broker_compensation",
-	},
-];
+import {
+	addExpense,
+	deleteExpense,
+	editExpense,
+	Expense,
+	ExpenseType,
+} from "../../../../store/slices/expenses.slice";
+import { useAppSelector } from "../../../../store/store";
 
 const expenseTypes = ["salary", "broker_compensation", "office_supplies"];
 
 const ExpensesTable = () => {
-	const [data, setData] = useState<ExpenseRecord[]>(mockExpenses);
+	const dispatch = useDispatch();
+	const expensesData = useAppSelector((state) => state.expenses.expensesData);
+
 	const [isModalOpen, setIsModalOpen] = useState(false);
-	const [editRecord, setEditRecord] = useState<ExpenseRecord | null>(null);
-	const [newRecord, setNewRecord] = useState<ExpenseRecord>({
+	const [editRecord, setEditRecord] = useState<Expense | null>(null);
+	const [newRecord, setNewRecord] = useState<Expense>({
+		id: "",
+		created_at: new Date(),
+		updated_at: new Date(),
 		amount: 0,
 		description: "",
-		expense_type: "",
-		date: new Date().toISOString().slice(0, 10),
+		expense_type: "salary" as ExpenseType,
+		date: new Date(),
 	});
 
 	const handleAddRecord = () => {
 		setNewRecord({
+			id: "",
+			created_at: new Date(),
+			updated_at: new Date(),
 			amount: 0,
 			description: "",
-			expense_type: "",
-			date: new Date().toISOString().slice(0, 10),
+			expense_type: "salary" as ExpenseType,
+			date: new Date(),
 		});
 		setIsModalOpen(true);
 	};
 
-	const handleEditRecord = (record: ExpenseRecord) => {
+	const handleEditRecord = (record: Expense) => {
 		setEditRecord(record);
 		setIsModalOpen(true);
 	};
 
-	const handleDeleteRecord = (id: string | undefined) => {
-		setData((prev) => prev.filter((item) => item.id !== id));
+	const handleDeleteRecord = (id: string) => {
+		dispatch(deleteExpense(id));
 	};
 
 	const handleSaveRecord = () => {
 		if (editRecord) {
-			setData((prev) =>
-				prev.map((item) =>
-					item.id === editRecord.id ? { ...editRecord } : item
-				)
-			);
+			dispatch(editExpense({ id: editRecord.id, updatedExpense: editRecord }));
 		} else {
 			const newId = Date.now().toString();
-			setData((prev) => [...prev, { ...newRecord, id: newId }]);
+			dispatch(
+				addExpense({
+					...newRecord,
+					id: newId,
+					created_at: new Date(),
+					updated_at: new Date(),
+				})
+			);
 		}
 		setEditRecord(null);
-		setNewRecord({
-			amount: 0,
-			description: "",
-			expense_type: "",
-			date: new Date().toISOString().slice(0, 10),
-		});
 		setIsModalOpen(false);
 	};
 
@@ -108,39 +98,41 @@ const ExpensesTable = () => {
 			>
 				Add Expense
 			</Button>
-			<Table aria-label='Expenses Table'>
-				<TableHeader>
-					<TableColumn>Amount</TableColumn>
-					<TableColumn>Description</TableColumn>
-					<TableColumn>Type</TableColumn>
-					<TableColumn>Date</TableColumn>
-					<TableColumn>Actions</TableColumn>
-				</TableHeader>
-				<TableBody>
-					{data.map((record) => (
-						<TableRow key={record.id}>
-							<TableCell>{record.amount}</TableCell>
-							<TableCell>{record.description}</TableCell>
-							<TableCell>{record.expense_type}</TableCell>
-							<TableCell>
-								{new Date(record.date).toLocaleDateString()}
-							</TableCell>
-							<TableCell>
-								<div className='flex space-x-2'>
-									<Edit
-										className='cursor-pointer text-blue-500'
-										onClick={() => handleEditRecord(record)}
-									/>
-									<Trash2
-										className='cursor-pointer text-red-500'
-										onClick={() => handleDeleteRecord(record.id)}
-									/>
-								</div>
-							</TableCell>
-						</TableRow>
-					))}
-				</TableBody>
-			</Table>
+			<div className='overflow-hidden '>
+				<Table>
+					<TableHeader>
+						<TableColumn>Amount</TableColumn>
+						<TableColumn>Description</TableColumn>
+						<TableColumn>Type</TableColumn>
+						<TableColumn>Date</TableColumn>
+						<TableColumn>Actions</TableColumn>
+					</TableHeader>
+					<TableBody>
+						{expensesData.map((record: Expense) => (
+							<TableRow key={record.id}>
+								<TableCell>{record.amount}</TableCell>
+								<TableCell>{record.description}</TableCell>
+								<TableCell>{record.expense_type}</TableCell>
+								<TableCell>
+									{new Date(record.date).toLocaleDateString()}
+								</TableCell>
+								<TableCell>
+									<div className='flex space-x-2'>
+										<Edit
+											className='cursor-pointer text-blue-500'
+											onClick={() => handleEditRecord(record)}
+										/>
+										<Trash2
+											className='cursor-pointer text-red-500'
+											onClick={() => handleDeleteRecord(record.id)}
+										/>
+									</div>
+								</TableCell>
+							</TableRow>
+						))}
+					</TableBody>
+				</Table>
+			</div>
 			<Modal
 				isOpen={isModalOpen}
 				onClose={() => setIsModalOpen(false)}
@@ -152,34 +144,23 @@ const ExpensesTable = () => {
 					<ModalBody>
 						<Input
 							label='Amount'
-							value={String((editRecord || newRecord)?.amount || 0)} // Convert number to string
-							onChange={(e) => {
-								const value = e.target.value;
-								if (editRecord) {
-									setEditRecord({
-										...editRecord,
-										amount: parseFloat(value) || 0,
-									}); // Convert string to number
-								} else {
-									setNewRecord({
-										...newRecord,
-										amount: parseFloat(value) || 0,
-									}); // Convert string to number
-								}
-							}}
+							value={String((editRecord || newRecord).amount)}
+							onChange={(e) =>
+								(editRecord ? setEditRecord : setNewRecord)({
+									...((editRecord || newRecord) as Expense),
+									amount: parseFloat(e.target.value) || 0,
+								})
+							}
 						/>
-
 						<Input
 							label='Description'
-							value={(editRecord || newRecord)?.description || ""}
-							onChange={(e) => {
-								const value = e.target.value;
-								if (editRecord) {
-									setEditRecord({ ...editRecord, description: value });
-								} else {
-									setNewRecord({ ...newRecord, description: value });
-								}
-							}}
+							value={(editRecord || newRecord).description}
+							onChange={(e) =>
+								(editRecord ? setEditRecord : setNewRecord)({
+									...((editRecord || newRecord) as Expense),
+									description: e.target.value,
+								})
+							}
 						/>
 						<Dropdown>
 							<DropdownTrigger>
@@ -190,19 +171,12 @@ const ExpensesTable = () => {
 							</DropdownTrigger>
 							<DropdownMenu
 								aria-label='Select Type'
-								onAction={(key) => {
-									if (editRecord) {
-										setEditRecord((prev) => {
-											if (!prev) return null;
-											return { ...prev, expense_type: key as string };
-										});
-									} else {
-										setNewRecord((prev) => ({
-											...prev,
-											expense_type: key as string,
-										}));
-									}
-								}}
+								onAction={(key) =>
+									(editRecord ? setEditRecord : setNewRecord)({
+										...((editRecord || newRecord) as Expense),
+										expense_type: key as ExpenseType,
+									})
+								}
 							>
 								{expenseTypes.map((type) => (
 									<DropdownItem key={type}>{type}</DropdownItem>
