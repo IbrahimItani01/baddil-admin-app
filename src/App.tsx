@@ -6,10 +6,12 @@ import DashboardMain from "./pages/dashboard";
 import ProtectedRoute from "./components/base/ProtectedRoute";
 import MeetupVerify from "./components/base/MeetupVerify";
 import Users from "./pages/dashboard/pages/Users";
-import Barters from "./pages/dashboard/pages/Barters";
 import Tiers from "./pages/dashboard/pages/Tiers";
-import Finances from "./pages/dashboard/pages/Finances";
 import Settings from "./pages/dashboard/pages/Settings";
+import ExpensesTable from "./pages/dashboard/pages/Expenses";
+import ProfitsTable from "./pages/dashboard/pages/Revenues";
+import BartersLocations from "./pages/dashboard/pages/BartersLocations";
+import BartersList from "./pages/dashboard/pages/Barters";
 function App() {
 	return (
 		<NextUIProvider>
@@ -40,11 +42,11 @@ function App() {
 					/>
 					<Route
 						path='barters'
-						element={<Barters />}
+						element={<BartersList />}
 					/>
 					<Route
 						path='barters-locations'
-						element={<Barters withLocations={true} />}
+						element={<BartersLocations />}
 					/>
 					<Route
 						path='tiers'
@@ -52,11 +54,11 @@ function App() {
 					/>
 					<Route
 						path='revenues'
-						element={<Finances />}
+						element={<ProfitsTable />}
 					/>
 					<Route
 						path='expenses'
-						element={<Finances forExpenses={true} />}
+						element={<ExpensesTable />}
 					/>
 					<Route
 						path='settings'
