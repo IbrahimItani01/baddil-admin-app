@@ -1,4 +1,5 @@
-import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
+import { PieChart, Pie, Cell, ResponsiveContainer, Legend } from "recharts";
+import { useAppSelector } from "../../../../../store/store";
 
 interface PieChartProps {
 	cx: number;
@@ -9,14 +10,12 @@ interface PieChartProps {
 	percent: number;
 	index: number;
 }
-const data = [
-	{ name: "Group A", value: 400 },
-	{ name: "Group B", value: 300 },    
-];
 
 const COLORS = ["#e60000", "#c26363"];
+const USER_TYPES = ["Brokers", "Barterers"];
 
 const RADIAN = Math.PI / 180;
+
 const renderCustomizedLabel = ({
 	cx,
 	cy,
@@ -43,6 +42,26 @@ const renderCustomizedLabel = ({
 };
 
 const UsersOverview = () => {
+	const { usersData } = useAppSelector((state) => state.users);
+
+	let brokersCount = 0;
+	let barterersCount = 0;
+
+	Object.keys(usersData).forEach((userType) => {
+		usersData[userType].forEach((user) => {
+			if (user.user_type.type === "broker") {
+				brokersCount++;
+			} else if (user.user_type.type === "barterer") {
+				barterersCount++;
+			}
+		});
+	});
+
+	const data = [
+		{ name: "Brokers", value: brokersCount },
+		{ name: "Barterers", value: barterersCount },
+	];
+
 	return (
 		<div className='text-2xl font-semibold ml-5 flex border-2 w-fit mt-20 rounded-medium p-5'>
 			<h1>Users</h1>
@@ -61,13 +80,24 @@ const UsersOverview = () => {
 						fill='#8884d8'
 						dataKey='value'
 					>
-						{data.map((entry, index) => (
+						{data.map((_, index) => (
 							<Cell
 								key={`cell-${index}`}
 								fill={COLORS[index % COLORS.length]}
 							/>
 						))}
 					</Pie>
+					<Legend
+						iconType='circle'
+						layout='vertical'
+						verticalAlign='middle'
+						align='right'
+						payload={USER_TYPES.map((userType, index) => ({
+							value: userType,
+							type: "square",
+							color: COLORS[index],
+						}))}
+					/>
 				</PieChart>
 			</ResponsiveContainer>
 		</div>
