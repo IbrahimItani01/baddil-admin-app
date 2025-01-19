@@ -1,5 +1,6 @@
 import axios from "axios";
 import { APIS_BASE_URL } from "../../main";
+import { User } from "../../../store/slices/users.slice";
 
 export const checkUserByEmail = async (email: string): Promise<unknown> => {
 	return axios
@@ -83,12 +84,11 @@ export const updateUserInfo = async (updateData: unknown): Promise<unknown> => {
 		return false;
 	}
 };
-export const fetchUsersByType = async (): Promise<unknown> => {
+export const fetchUsersByType = async (): Promise<Record<string, User[]> | undefined> => {
 	try {
 	  const token = localStorage.getItem("token");
 	  if (!token) {
 		console.error("No token found");
-		return false;
 	  }
   
 	  const response = await axios.get(`${APIS_BASE_URL}/users/users-by-type`, {
@@ -101,10 +101,8 @@ export const fetchUsersByType = async (): Promise<unknown> => {
 		return response.data.data; 
 	  } else {
 		console.error("Failed to fetch users by type");
-		return false;
 	  }
 	} catch (error) {
 	  console.error("Error fetching users by type:", error);
-	  return false;
 	}
   };
